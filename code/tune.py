@@ -8,21 +8,27 @@ import torch.nn as nn
 import torch.optim as optim
 from src.dataloader import create_dataloader
 from src.model import Model
-from src.utils.torch_utils import model_info, check_runtime
+from src.utils.torch_utils import model_info, check_runtime, save_model
 from src.trainer import TorchTrainer, count_model_params
 from typing import Any, Dict, List, Tuple
 from optuna.pruners import HyperbandPruner
 from subprocess import _args_from_interpreter_flags
 import argparse
 
+import wandb
+
+import os
+
+import yaml
+
 EPOCH = 100
 DATA_PATH = "/opt/ml/data"  # type your data path here that contains test, train and val directories
 RESULT_MODEL_PATH = "./result_model.pt" # result model will be saved in this path
-
+BEST_MODEL_PATH = "./exp/latest"
 
 def search_hyperparam(trial: optuna.trial.Trial) -> Dict[str, Any]:
     """Search hyperparam from user-specified search space."""
-    epochs = trial.suggest_int("epochs", low=50, high=50, step=50)
+    epochs = trial.suggest_int("epochs", low=50, high=50, step=1)
     img_size = trial.suggest_categorical("img_size", [96, 112, 168, 224])
     n_select = trial.suggest_int("n_select", low=0, high=6, step=2)
     batch_size = trial.suggest_int("batch_size", low=16, high=32, step=16)
@@ -388,6 +394,14 @@ def objective(trial: optuna.trial.Trial, device) -> Tuple[float, int, float]:
     model_info(model, verbose=True)
     train_loader, val_loader, test_loader = create_dataloader(data_config)
 
+    wandb.init(
+        project="optuna",
+        entity='geup',
+        config={'model_config':model_config, 'data_config':data_config},
+        reinit = True
+    )
+    wandb.watch(model, log="all")
+
     criterion = nn.CrossEntropyLoss()
     optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9)
     scheduler = torch.optim.lr_scheduler.OneCycleLR(
@@ -412,6 +426,28 @@ def objective(trial: optuna.trial.Trial, device) -> Tuple[float, int, float]:
     params_nums = count_model_params(model)
 
     model_info(model, verbose=True)
+
+    if os.path.exists(os.path.join(BEST_MODEL_PATH, "best_score.txt")):
+        with open(os.path.join(BEST_MODEL_PATH, "best_score.txt"), 'rt') as f:
+            best_score = float(f.read())
+    else:
+        best_score = 0
+    
+    cur_score = f1_score/mean_time
+    if cur_score > best_score:
+        with open(os.path.join(BEST_MODEL_PATH, "data.yml"), "w") as f:
+            yaml.dump(data_config, f, default_flow_style=False)
+        with open(os.path.join(BEST_MODEL_PATH, "model.yml"), "w") as f:
+            yaml.dump(model_config, f, default_flow_style=False)
+        save_model(
+            model=model.model,
+            path=os.path.join(BEST_MODEL_PATH, "best.pt")
+        )
+        best_score = cur_score
+        with open(os.path.join(BEST_MODEL_PATH, "best_score.txt"), 'wt') as f:
+            f.write(str(best_score))
+        print('update best model')
+    wandb.log({'f1_score':f1_score, 'params_nums':params_nums, 'mean_time':mean_time})
     return f1_score, params_nums, mean_time
 
 
@@ -460,6 +496,9 @@ def tune(gpu_id, storage: str = None):
         rdb_storage = optuna.storages.RDBStorage(url=storage)
     else:
         rdb_storage = None
+
+    os.makedirs(BEST_MODEL_PATH, exist_ok=True)
+    
     study = optuna.create_study(
         directions=["maximize", "minimize", "minimize"],
         study_name="automl101",

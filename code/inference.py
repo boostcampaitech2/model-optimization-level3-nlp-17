@@ -173,11 +173,13 @@ if __name__ == "__main__":
         model = torch.jit.load(args.weight)
     else:
         model_instance = Model(args.model_config, verbose=True)
+        print(args.weight)
         model_instance.model.load_state_dict(
             torch.load(args.weight, map_location=torch.device("cpu"))
         )
         model = model_instance.model
 
     # inference
+    
     inference(model, dataloader, args.dst, t0)
 
