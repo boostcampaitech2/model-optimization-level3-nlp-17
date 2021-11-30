@@ -66,7 +66,7 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
 
     # Module 2
     m2 = trial.suggest_categorical(
-        "m2", ["Conv", "DWConv", "InvertedResidualv2", "InvertedResidualv3", "Pass"]
+        "m2", ["Conv", "DWConv", "InvertedResidualv2", "InvertedResidualv3", "Fire", "Pass"]
     )
     m2_args = []
     m2_repeat = trial.suggest_int("m2/repeat", 1, 5)
@@ -101,6 +101,10 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         m2_hs = trial.suggest_categorical("m2/v3_hs", [0, 1])
         # k t c SE HS s
         m2_args = [m2_kernel, m2_t, m2_c, m2_se, m2_hs, m2_stride]
+    elif m2 == "Fire":
+        m2_squeeze_planes = trial.suggest_int("m2/squeeze_planes", low=8, high=64, step=8)
+        m2_expand_planes = trial.suggest_int("m2/expand_planes", low=64, high=256, step=64)
+        m2_args = [m2_squeeze_planes, m2_expand_planes, m2_expand_planes]
     if not m2 == "Pass":
         if m2_stride == 2:
             n_stride += 1
@@ -110,7 +114,7 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
 
     # Module 3
     m3 = trial.suggest_categorical(
-        "m3", ["Conv", "DWConv", "InvertedResidualv2", "InvertedResidualv3", "Pass"]
+        "m3", ["Conv", "DWConv", "InvertedResidualv2", "InvertedResidualv3", "Fire", "Pass"]
     )
     m3_args = []
     m3_repeat = trial.suggest_int("m3/repeat", 1, 5)
@@ -142,6 +146,10 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         m3_se = trial.suggest_categorical("m3/v3_se", [0, 1])
         m3_hs = trial.suggest_categorical("m3/v3_hs", [0, 1])
         m3_args = [m3_kernel, m3_t, m3_c, m3_se, m3_hs, m3_stride]
+    elif m3 == "Fire":
+        m3_squeeze_planes = trial.suggest_int("m3/squeeze_planes", low=8, high=64, step=8)
+        m3_expand_planes = trial.suggest_int("m3/expand_planes", low=64, high=256, step=64)
+        m3_args = [m3_squeeze_planes, m3_expand_planes, m3_expand_planes]
     if not m3 == "Pass":
         if m3_stride == 2:
             n_stride += 1
@@ -151,7 +159,7 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
 
     # Module 4
     m4 = trial.suggest_categorical(
-        "m4", ["Conv", "DWConv", "InvertedResidualv2", "InvertedResidualv3", "Pass"]
+        "m4", ["Conv", "DWConv", "InvertedResidualv2", "InvertedResidualv3", "Fire", "Pass"]
     )
     m4_args = []
     m4_repeat = trial.suggest_int("m4/repeat", 1, 5)
@@ -186,6 +194,11 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         m4_se = trial.suggest_categorical("m4/v3_se", [0, 1])
         m4_hs = trial.suggest_categorical("m4/v3_hs", [0, 1])
         m4_args = [m4_kernel, m4_t, m4_c, m4_se, m4_hs, m4_stride]
+    elif m4 == "Fire":
+        m4_squeeze_planes = trial.suggest_int("m4/squeeze_planes", low=8, high=64, step=8)
+        m4_expand_planes = trial.suggest_int("m4/expand_planes", low=64, high=256, step=64)
+        m4_args = [m4_squeeze_planes, m4_expand_planes, m4_expand_planes]
+    
     if not m4 == "Pass":
         if m4_stride == 2:
             n_stride += 1
@@ -195,7 +208,7 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
 
     # Module 5
     m5 = trial.suggest_categorical(
-        "m5", ["Conv", "DWConv", "InvertedResidualv2", "InvertedResidualv3", "Pass"]
+        "m5", ["Conv", "DWConv", "InvertedResidualv2", "InvertedResidualv3","Fire", "Pass"]
     )
     m5_args = []
     m5_repeat = trial.suggest_int("m5/repeat", 1, 5)
@@ -231,6 +244,10 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         m5_hs = trial.suggest_categorical("m5/v3_hs", [0, 1])
         m5_stride = trial.suggest_int("m5/stride", low=1, high=UPPER_STRIDE)
         m5_args = [m5_kernel, m5_t, m5_c, m5_se, m5_hs, m5_stride]
+    elif m5 == "Fire":
+        m5_squeeze_planes = trial.suggest_int("m5/squeeze_planes", low=8, high=64, step=8)
+        m5_expand_planes = trial.suggest_int("m5/expand_planes", low=64, high=256, step=64)
+        m5_args = [m5_squeeze_planes, m5_expand_planes, m5_expand_planes]
     if not m5 == "Pass":
         if m5_stride == 2:
             n_stride += 1
@@ -240,7 +257,7 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
 
     # Module 6
     m6 = trial.suggest_categorical(
-        "m6", ["Conv", "DWConv", "InvertedResidualv2", "InvertedResidualv3", "Pass"]
+        "m6", ["Conv", "DWConv", "InvertedResidualv2", "InvertedResidualv3", "Fire", "Pass"]
     )
     m6_args = []
     m6_repeat = trial.suggest_int("m6/repeat", 1, 5)
@@ -275,6 +292,10 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         m6_se = trial.suggest_categorical("m6/v3_se", [0, 1])
         m6_hs = trial.suggest_categorical("m6/v3_hs", [0, 1])
         m6_args = [m6_kernel, m6_t, m6_c, m6_se, m6_hs, m6_stride]
+    elif m6 == "Fire":
+        m6_squeeze_planes = trial.suggest_int("m6/squeeze_planes", low=8, high=64, step=8)
+        m6_expand_planes = trial.suggest_int("m6/expand_planes", low=64, high=256, step=64)
+        m6_args = [m6_squeeze_planes, m6_expand_planes, m6_expand_planes]
     if not m6 == "Pass":
         if m6_stride == 2:
             n_stride += 1
@@ -284,7 +305,7 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
 
     # Module 7
     m7 = trial.suggest_categorical(
-        "m7", ["Conv", "DWConv", "InvertedResidualv2", "InvertedResidualv3", "Pass"]
+        "m7", ["Conv", "DWConv", "InvertedResidualv2", "InvertedResidualv3", "Fire", "Pass"]
     )
     m7_args = []
     m7_repeat = trial.suggest_int("m7/repeat", 1, 5)
@@ -320,6 +341,10 @@ def search_model(trial: optuna.trial.Trial) -> List[Any]:
         m7_se = trial.suggest_categorical("m7/v3_se", [0, 1])
         m7_hs = trial.suggest_categorical("m7/v3_hs", [0, 1])
         m7_args = [m7_kernel, m7_t, m7_c, m7_se, m7_hs, m7_stride]
+    elif m7 == "Fire":
+        m7_squeeze_planes = trial.suggest_int("m7/squeeze_planes", low=8, high=64, step=8)
+        m7_expand_planes = trial.suggest_int("m7/expand_planes", low=64, high=256, step=64)
+        m7_args = [m7_squeeze_planes, m7_expand_planes, m7_expand_planes]
     if not m7 == "Pass":
         if m7_stride == 2:
             n_stride += 1
@@ -501,7 +526,7 @@ def tune(gpu_id, storage: str = None):
     
     study = optuna.create_study(
         directions=["maximize", "minimize", "minimize"],
-        study_name="automl101",
+        study_name="automl102",
         sampler=sampler,
         storage=rdb_storage,
         load_if_exists=True,
