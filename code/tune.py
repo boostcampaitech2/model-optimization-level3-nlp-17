@@ -495,7 +495,7 @@ def tune(gpu_id, storage: str = None):
     if storage is not None:
         rdb_storage = optuna.storages.RDBStorage(url=storage)
     else:
-        rdb_storage = None
+        rdb_storage = optuna.storages.RDBStorage(url="postgresql://t2046:0000@49.50.164.153:6011/optuna")
 
     os.makedirs(BEST_MODEL_PATH, exist_ok=True)
     
