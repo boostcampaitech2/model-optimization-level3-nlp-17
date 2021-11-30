@@ -1,0 +1,16 @@
+input_channel: 3
+
+depth_multiple: 0.25
+width_multiple: 0.75
+
+backbone:
+    [
+      [1,"Conv",[48,3,2,null,1,"Hardswish"]],
+      [5,"InvertedResidualv2",[16,2,2]],
+      [2,"DWConv",[112,5,1,null,"Hardswish"]],
+      [2,"DWConv",[288,5,2,null,"Hardswish"]],
+      [3,"InvertedResidualv3",[3,5.1,80,1,0,1]],
+      [1,"Conv",[512,1,1]],[1,"GlobalAvgPool",[]],
+      [1,"FixedConv",[9,1,1,null,1,null]]
+      ]
+

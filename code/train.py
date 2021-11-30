@@ -18,8 +18,9 @@ from src.loss import CustomCriterion
 from src.model import Model
 from src.trainer import TorchTrainer
 from src.utils.common import get_label_counts, read_yaml
-from src.utils.torch_utils import check_runtime, model_info
+from src.utils.torch_utils import check_runtime, model_info, save_model
 
+import wandb
 
 def train(
     model_config: Dict[str, Any],
@@ -111,6 +112,13 @@ if __name__ == "__main__":
     data_config = read_yaml(cfg=args.data)
 
     data_config["DATA_PATH"] = os.environ.get("SM_CHANNEL_TRAIN", data_config["DATA_PATH"])
+
+    wandb.init(
+        project="optuna",
+        entity='geup',
+        config={'model_config':model_config, 'data_config':data_config},
+        reinit = True
+    )
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     log_dir = os.environ.get("SM_MODEL_DIR", os.path.join("exp", 'latest'))

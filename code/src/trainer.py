@@ -21,6 +21,8 @@ from tqdm import tqdm
 
 from src.utils.torch_utils import save_model
 
+import wandb
+
 
 def _get_n_data_from_dataloader(dataloader: DataLoader) -> int:
     """Get a number of data in dataloader.
@@ -180,11 +182,10 @@ class TorchTrainer:
             best_test_acc = test_acc
             best_test_f1 = test_f1
             print(f"Model saved. Current best test f1: {best_test_f1:.3f}")
+            wandb.log({"val_accuracy":test_acc, "val_f1":test_f1})
             save_model(
                 model=self.model,
-                path=self.model_path,
-                data=data,
-                device=self.device,
+                path=self.model_path
             )
 
         return best_test_acc, best_test_f1
