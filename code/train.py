@@ -22,6 +22,7 @@ from src.utils.torch_utils import check_runtime, model_info, save_model
 
 import wandb
 
+
 def train(
     model_config: Dict[str, Any],
     data_config: Dict[str, Any],
@@ -111,21 +112,25 @@ if __name__ == "__main__":
     model_config = read_yaml(cfg=args.model)
     data_config = read_yaml(cfg=args.data)
 
-    data_config["DATA_PATH"] = os.environ.get("SM_CHANNEL_TRAIN", data_config["DATA_PATH"])
+    data_config["DATA_PATH"] = os.environ.get(
+        "SM_CHANNEL_TRAIN", data_config["DATA_PATH"]
+    )
 
     wandb.init(
         project="optuna",
-        entity='geup',
-        config={'model_config':model_config, 'data_config':data_config},
-        reinit = True
+        entity="mrc17_test_korea",
+        config={"model_config": model_config, "data_config": data_config},
+        reinit=True,
     )
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-    log_dir = os.environ.get("SM_MODEL_DIR", os.path.join("exp", 'latest'))
+    log_dir = os.environ.get("SM_MODEL_DIR", os.path.join("exp", "latest"))
 
-    if os.path.exists(log_dir): 
-        modified = datetime.fromtimestamp(os.path.getmtime(log_dir + '/best.pt'))
-        new_log_dir = os.path.dirname(log_dir) + '/' + modified.strftime("%Y-%m-%d_%H-%M-%S")
+    if os.path.exists(log_dir):
+        modified = datetime.fromtimestamp(os.path.getmtime(log_dir + "/best.pt"))
+        new_log_dir = (
+            os.path.dirname(log_dir) + "/" + modified.strftime("%Y-%m-%d_%H-%M-%S")
+        )
         os.rename(log_dir, new_log_dir)
 
     os.makedirs(log_dir, exist_ok=True)
@@ -137,4 +142,3 @@ if __name__ == "__main__":
         fp16=data_config["FP16"],
         device=device,
     )
-
