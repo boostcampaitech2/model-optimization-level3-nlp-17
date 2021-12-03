@@ -54,7 +54,7 @@ def get_dataloader(img_root: str, data_config: str) -> DataLoader:
     data_config = read_yaml(data_config)
 
     transform_test_args = (
-        data_confg["AUG_TEST_PARAMS"] if data_config.get("AUG_TEST_PARAMS") else None
+        data_config["AUG_TEST_PARAMS"] if data_config.get("AUG_TEST_PARAMS") else None
     )
     # Transformation for test
     transform_test = getattr(
@@ -173,11 +173,13 @@ if __name__ == "__main__":
         model = torch.jit.load(args.weight)
     else:
         model_instance = Model(args.model_config, verbose=True)
+        print(args.weight)
         model_instance.model.load_state_dict(
             torch.load(args.weight, map_location=torch.device("cpu"))
         )
         model = model_instance.model
 
     # inference
+    
     inference(model, dataloader, args.dst, t0)
 

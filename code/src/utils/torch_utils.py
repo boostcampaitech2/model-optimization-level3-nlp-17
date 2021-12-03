@@ -59,7 +59,7 @@ def split_dataset_index(
     return train_subset, valid_subset
 
 
-def save_model(model, path, data, device):
+def save_model(model, path):
     """save model to torch script, onnx."""
     try:
         torch.save(model.state_dict(), f=path)
